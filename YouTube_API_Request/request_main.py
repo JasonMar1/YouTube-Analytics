@@ -1,7 +1,6 @@
-import os
-from auth import get_authenticated_service
-from data_processor import db_from_json,save_to_db
-from api_requests import day_request, device_type_request, request
+from YouTube_API_Request.auth import get_authenticated_service
+from data_processor import save_to_db
+from YouTube_API_Request.api_requests import request
 
 if __name__ == '__main__':
     authenticated_service = get_authenticated_service()
