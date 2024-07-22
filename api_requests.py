@@ -50,13 +50,15 @@ all_metrics = [
     'viewerPercentage'
 ]
 
+
 def execute_api_request(client_library_function, **kwargs):
     response = client_library_function(
         **kwargs
     ).execute()
     return response
 
-def check_metric_availability(authenticated_service, startDate, endDate):
+
+def check_metric_availability(authenticated_service, startDate, endDate, dimension):
     available_metrics = []
     for metric in all_metrics:
         try:
@@ -66,14 +68,14 @@ def check_metric_availability(authenticated_service, startDate, endDate):
                 startDate=startDate,
                 endDate=endDate,
                 metrics=metric,
-                dimensions='day',
-                sort='day'
+                dimensions=dimension
             )
             available_metrics.append(metric)
         except googleapiclient.errors.HttpError as e:
-            print('')
-          # print(f"Metric {metric} is not available: {e}")
+            print("")
+            # print(f"Metric {metric} is not available: {e}")
     return available_metrics
+
 
 def check_availability(authenticated_service, startDate, endDate, dimension):
     try:
@@ -87,14 +89,16 @@ def check_availability(authenticated_service, startDate, endDate, dimension):
         )
         return True
     except googleapiclient.errors.HttpError as e:
-        #print(f"Dimension {dimension} is not available: {e}")
+        # print(f"Dimension {dimension} is not available: {e}")
         return False
 
+
 def request(authenticated_service, startDate, endDate):
+    allData = []
     for dimension in all_dimensions:
         print(dimension)
         if check_availability(authenticated_service, startDate, endDate, dimension):
-            available_metrics = check_metric_availability(authenticated_service, startDate, endDate)
+            available_metrics = check_metric_availability(authenticated_service, startDate, endDate, dimension)
             metrics = ','.join(available_metrics)
             data = execute_api_request(
                 authenticated_service.reports().query,
@@ -102,9 +106,11 @@ def request(authenticated_service, startDate, endDate):
                 startDate=startDate,
                 endDate=endDate,
                 metrics=metrics,
-                dimensions=dimension,
+                dimensions=dimension
             )
-            return data
+            allData.append(data)
+    return allData
+
 
 def day_request(authenticated_service, startDate, endDate):
     available_metrics = check_metric_availability(authenticated_service, startDate, endDate)
@@ -121,10 +127,8 @@ def day_request(authenticated_service, startDate, endDate):
     return data
 
 
-
 def device_type_request(authenticated_service, startDate, endDate):
     available_metrics = check_metric_availability(authenticated_service, startDate, endDate)
-
 
     metrics = ','.join(available_metrics)
     data = execute_api_request(
@@ -133,15 +137,16 @@ def device_type_request(authenticated_service, startDate, endDate):
         startDate=startDate,
         endDate=endDate,
         metrics='views',
-        dimensions='deviceType',
+        dimensions='deviceType'
     )
     return data
+
+
 # date format =  startDate='2023-01-01',
 
 def country_request(authenticated_service, startDate, endDate):
     available_metrics = check_metric_availability(authenticated_service, startDate, endDate)
 
-
     metrics = ','.join(available_metrics)
     data = execute_api_request(
         authenticated_service.reports().query,
@@ -152,7 +157,6 @@ def country_request(authenticated_service, startDate, endDate):
         dimensions='deviceType',
     )
     return data
-
 
     """
     # Second API requests for each dimension for lifetime data

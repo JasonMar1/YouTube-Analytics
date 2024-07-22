@@ -8,11 +8,13 @@ if __name__ == '__main__':
     start = '2023-01-01'
     end = '2024-01-01'
     #data = day_request(authenticated_service, start, end)
-    device_data = request(authenticated_service,start,end)
-    print(device_data)
-    for data in device_data:
-        print(data)
-        #save_to_db(device_data, 'youtube_analytics.db', f'{data}')
+
+    data = request(authenticated_service, start, end)
+
+
+    for i in data:
+        table_name = i['columnHeaders'][0]['name']
+        save_to_db(i, 'youtube_analytics.db', f'{table_name}')
 
 
 
