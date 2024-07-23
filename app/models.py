@@ -1,4 +1,4 @@
-from app import db
+from market import db
 
 class YourModel(db.Model):
     id = db.Column(db.Integer, primary_key=True)
