@@ -34,7 +34,7 @@ def db_from_json():
     rows = data['rows']
 
     # Connect to SQLite database (or create it if it doesn't exist)
-    conn = sqlite3.connect('../youtube_analytics.db')
+    conn = sqlite3.connect('../app/instance/youtube_analytics.db')
     cursor = conn.cursor()
 
     # Create the table if it doesn't exist
