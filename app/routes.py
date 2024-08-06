@@ -1,6 +1,6 @@
 from app import app
 from flask import render_template, redirect, url_for, flash
-from app.models import User, AnalyticsData
+from app.models import User
 from app.forms import RegisterForm, LoginForm
 from app import db
 from flask_login import login_user, logout_user, login_required
@@ -11,13 +11,14 @@ def home_page():
     return render_template('home.html')
 
 
-@app.route('/analytics')
+@app.route('/analytics/<table_name>')
 @login_required
-def analytics_page():
+def analytics_table_page(table_name):
     tables_data = {}
     with app.app_context():
-        db.reflect(bind='__all__')  # Reflect all binds
-        for table_name, table_obj in db.Model.metadata.tables.items():
+        db.reflect()  # Reflect all binds
+        if table_name in db.Model.metadata.tables:
+            table_obj = db.Model.metadata.tables[table_name]
             # Reflect table and query all rows
             items = db.session.query(table_obj).all()
             # Store the rows and column names
@@ -25,6 +26,9 @@ def analytics_page():
                 "rows": items,
                 "columns": table_obj.columns.keys()
             }
+        else:
+            flash(f'Table {table_name} does not exist in the database.', 'danger')
+            return redirect(url_for('home_page'))
     return render_template('analytics_page.html', tables_data=tables_data, getattr=getattr)
 
 
