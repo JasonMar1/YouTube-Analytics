@@ -3,24 +3,26 @@ import sqlite3
 
 
 
-def save_to_db(data, db_name, table_name):
+# data_processor.py
+def save_to_db(data, db_name, table_name, user_id):
     conn = sqlite3.connect(db_name)
     cursor = conn.cursor()
 
     column_headers = [header['name'] for header in data['columnHeaders']]
-    primary_key = column_headers[0]
+    primary_key = 'id'
     columns = ', '.join(
-        [f"{header} TEXT" if header == primary_key else f"{header} INTEGER" for header in column_headers])
-    cursor.execute(f"CREATE TABLE IF NOT EXISTS {table_name} ({columns}, PRIMARY KEY({primary_key}))")
+        [f"{primary_key} INTEGER PRIMARY KEY AUTOINCREMENT"] + [f"{header} TEXT" if header == primary_key else f"{header} INTEGER" for header in column_headers])
+    cursor.execute(f"CREATE TABLE IF NOT EXISTS {table_name} ({columns})")
 
     rows = data['rows']
     for row in rows:
         placeholders = ', '.join(['?' for _ in row])
-        cursor.execute(f"INSERT OR IGNORE INTO {table_name} ({', '.join(column_headers)}) VALUES ({placeholders})",
-                       tuple(row))
+        cursor.execute(f"INSERT INTO {table_name} ({', '.join([primary_key] + column_headers)}) VALUES (NULL, {placeholders})",
+                       (user_id, *row))
 
     conn.commit()
     conn.close()
+
 
 def db_from_json():
     # Load the JSON data from the file

@@ -1,3 +1,4 @@
+<!-- register.html -->
 {% extends 'base.html' %}
 {% block title %}
 Register Page
@@ -32,9 +33,12 @@ Register Page
                <a class="btn btn-sm btn-secondary" href="{{ url_for('login_page') }}">Login</a>
             </div>
 
-
             {{ form.submit(class="btn btn-lg btn-block btn-primary") }}
         </form>
+        <br>
+        <a class="btn btn-lg btn-danger btn-block" href="{{ url_for('google_signup') }}">
+            Sign Up with Google
+        </a>
     </div>
 </body>
 {% endblock %}
