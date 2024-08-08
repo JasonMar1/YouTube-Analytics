@@ -1,7 +1,7 @@
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 from googleapiclient.discovery import build
-from auth import get_authenticated_service
+from YouTube_API_Request.auth import get_authenticated_service
 import googleapiclient
 
 all_dimensions = [

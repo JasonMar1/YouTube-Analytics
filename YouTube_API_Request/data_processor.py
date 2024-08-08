@@ -1,71 +1,82 @@
-import json
-import sqlite3
-
-
-
 # data_processor.py
-def save_to_db(data, db_name, table_name, user_id):
-    conn = sqlite3.connect(db_name)
-    cursor = conn.cursor()
-
-    column_headers = [header['name'] for header in data['columnHeaders']]
-    primary_key = 'id'
-    columns = ', '.join(
-        [f"{primary_key} INTEGER PRIMARY KEY AUTOINCREMENT"] + [f"{header} TEXT" if header == primary_key else f"{header} INTEGER" for header in column_headers])
-    cursor.execute(f"CREATE TABLE IF NOT EXISTS {table_name} ({columns})")
-
-    rows = data['rows']
-    for row in rows:
-        placeholders = ', '.join(['?' for _ in row])
-        cursor.execute(f"INSERT INTO {table_name} ({', '.join([primary_key] + column_headers)}) VALUES (NULL, {placeholders})",
-                       (user_id, *row))
-
-    conn.commit()
-    conn.close()
+from app import db
+from app.models import DeviceType, Day, Gender, Month, SharingService, UploaderType, Video
+from sqlalchemy.exc import SQLAlchemyError
+from datetime import datetime
 
 
-def db_from_json():
-    # Load the JSON data from the file
-    with open('data.json', 'r') as json_file:
-        data = json.load(json_file)
+def save_to_db(data, db, table_name, user_id):
+    # Mapping table names to models
+    table_model_map = {
+        'deviceType': DeviceType,
+        'day': Day,
+        'gender': Gender,
+        'month': Month,
+        'sharingService': SharingService,
+        'uploaderType': UploaderType,
+        'video': Video
+    }
 
-    # Extract the column headers (not used directly in this approach)
+    # Get the model class based on the table name
+    model_class = table_model_map.get(table_name)
+    if model_class is None:
+        raise ValueError(f"No model found for table: {table_name}")
+
+    # Create a list of columns in the table
     column_headers = [header['name'] for header in data['columnHeaders']]
 
-    # Extract the rows of data
+    # Use the first column as the criteria for checking uniqueness
+    first_column = column_headers[0]
+
+    # Extract rows from data
     rows = data['rows']
 
-    # Connect to SQLite database (or create it if it doesn't exist)
-    conn = sqlite3.connect('../instance/youtube_analytics.db')
-    cursor = conn.cursor()
-
-    # Create the table if it doesn't exist
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS analytics (
-            day TEXT PRIMARY KEY,
-            estimatedMinutesWatched INTEGER,
-            views INTEGER,
-            likes INTEGER,
-            subscribersGained INTEGER,
-            cardImpressions INTEGER,
-            subscribersLost INTEGER,
-            annotationImpressions INTEGER
-        )
-    ''')
-
-    # Insert new rows into the database
+    # Iterate over rows and create instances of the model
     for row in rows:
-        cursor.execute('''
-            INSERT OR IGNORE INTO analytics (
-                day, estimatedMinutesWatched, views, likes, subscribersGained,
-                cardImpressions, subscribersLost, annotationImpressions
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-        ''', tuple(row))
+        try:
+            # Prepare the criteria for checking if a record exists
+            criteria = {first_column: row[0]}  # Only include the first column value in criteria
+
+            # Remove empty string and 'null' from criteria
+            if isinstance(criteria[first_column], str) and criteria[first_column].lower() in {'null', ''}:
+                criteria[first_column] = None
+
+            # Check if the record already exists
+            existing_record = db.session.query(model_class).filter_by(user_id=user_id, **criteria).first()
+
+            if existing_record is None:
+                # Create an instance of the model class with the appropriate fields
+                entry = model_class(user_id=user_id)
+                for header, value in zip(column_headers, row):
+                    if isinstance(value, str) and value.lower() in {'null', ''}:
+                        value = None
+                    if header == 'day':
+                        try:
+                            value = datetime.strptime(value, '%Y-%m-%d').date()
+                        except (ValueError, TypeError):
+                            value = None
+                    elif header == 'month':
+                        try:
+                            datetime.strptime(value, '%Y-%m')
+                            value = str(value)
+                        except (ValueError, TypeError):
+                            value = None
+                    setattr(entry, header, value)
+
+                # Add the instance to the session
+                db.session.add(entry)
+            else:
+                print(f"Record already exists for {table_name} with criteria: {criteria}")
+
+        except Exception as e:
+            print(f"Error processing data for table {table_name}: {str(e)}")
+            continue
 
     # Commit the transaction
-    conn.commit()
+    try:
+        db.session.commit()
+    except SQLAlchemyError as e:
+        db.session.rollback()
+        print(f"Database commit error: {str(e)}")
 
-    # Close the connection
-    conn.close()
-
-    print("Data has been saved to the database.")
+    print(f"Data has been saved to the {table_name} table.")

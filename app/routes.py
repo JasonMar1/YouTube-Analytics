@@ -1,12 +1,13 @@
-from app import app
+from app import app, db
 from flask import render_template, redirect, url_for, flash, session, request
-from app.models import User
+from app.models import User, DeviceType, Day, Gender, Month, SharingService, UploaderType, Video
 from app.forms import RegisterForm, LoginForm
-from app import db
 from flask_login import login_user, logout_user, login_required, current_user
 from YouTube_API_Request import auth
-from google.oauth2.credentials import Credentials
 from YouTube_API_Request.auth import json_to_credentials, credentials_to_json
+from YouTube_API_Request.request_main import request_data_for_user  # Import the function
+
+# The mock function is no longer needed; remove or comment it out if you wish.
 
 @app.route('/')
 def home_page():
@@ -16,21 +17,52 @@ def home_page():
 @login_required
 def analytics_table_page(table_name):
     tables_data = {}
-    with app.app_context():
-        db.reflect()  # Reflect all binds
-        if table_name in db.Model.metadata.tables:
-            table_obj = db.Model.metadata.tables[table_name]
-            # Reflect table and query all rows
-            items = db.session.query(table_obj).all()
-            # Store the rows and column names
-            tables_data[table_name] = {
-                "rows": items,
-                "columns": table_obj.columns.keys()
-            }
-        else:
-            flash(f'Table {table_name} does not exist in the database.', 'danger')
-            return redirect(url_for('home_page'))
+
+    # Ensure the table name is valid
+    model_class = {
+        'deviceType': DeviceType,
+        'day': Day,
+        'gender': Gender,
+        'month': Month,
+        'sharingService': SharingService,
+        'uploaderType': UploaderType,
+        'video': Video
+    }.get(table_name)
+
+    if model_class is None:
+        flash(f'Table {table_name} does not exist in the database.', 'danger')
+        return redirect(url_for('home_page'))
+
+    try:
+        # Query for data specific to the logged-in user
+        items = db.session.query(model_class).filter_by(user_id=current_user.id).all()
+
+        # Store the rows and column names
+        tables_data[table_name] = {
+            "rows": items,
+            "columns": [column.name for column in model_class.__table__.columns]
+        }
+    except Exception as e:
+        flash(f'Error retrieving data: {str(e)}', 'danger')
+        return redirect(url_for('home_page'))
+
     return render_template('analytics_page.html', tables_data=tables_data, getattr=getattr)
+    # tables_data = {}
+    # with app.app_context():
+    #     db.reflect()  # Reflect all binds
+    #     if table_name in db.Model.metadata.tables:
+    #         table_obj = db.Model.metadata.tables[table_name]
+    #         # Reflect table and query all rows
+    #         items = db.session.query(table_obj).all()
+    #         # Store the rows and column names
+    #         tables_data[table_name] = {
+    #             "rows": items,
+    #             "columns": table_obj.columns.keys()
+    #         }
+    #     else:
+    #         flash(f'Table {table_name} does not exist in the database.', 'danger')
+    #         return redirect(url_for('home_page'))
+    # return render_template('analytics_page.html', tables_data=tables_data, getattr=getattr)
 
 @app.route('/oauth2callback')
 def oauth2callback():
@@ -134,6 +166,24 @@ def google_auth_status_page():
 @login_required
 def donate_page():
     return render_template('donate.html')
+
+@app.route('/request_data')
+@login_required
+def request_data():
+    # Fetch the user ID from the session
+    user_id = session.get('user_id')
+    if not user_id:
+        flash('User session not found.', 'danger')
+        return redirect(url_for('login_page'))
+
+    try:
+        # Execute the request_data_for_user function
+        request_data_for_user()
+        flash('Data requested and saved successfully.', 'success')
+    except Exception as e:
+        flash(f'Error requesting data: {str(e)}', 'danger')
+
+    return redirect(url_for('login_page'))
 
 if __name__ == '__main__':
     app.run(debug=True)
