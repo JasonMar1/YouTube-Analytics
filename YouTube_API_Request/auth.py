@@ -23,7 +23,7 @@ def start_oauth_flow():
     flow = Flow.from_client_secrets_file(
         CLIENT_SECRETS_FILE,
         scopes=SCOPES,
-        redirect_uri=url_for('oauth2callback', _external=True)
+        redirect_uri="https://youtube-analytics-dashboard-2ac54861e0a3.herokuapp.com/oauth2callback"
     )
     authorization_url, state = flow.authorization_url(
         access_type='offline',
