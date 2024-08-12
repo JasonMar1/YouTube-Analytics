@@ -1,9 +1,49 @@
-{%extends 'base.html'%}
+{% extends 'base.html' %}
 
 {% block title %}
     Home Page
 {% endblock %}
 
+{% block additional_styles %}
+<style>
+    body, html {
+        height: 100%;
+        margin: 0;
+    }
+    .home-wrapper {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100%;
+    }
+    .home-content {
+        padding: 50px 20px;
+        text-align: center;
+        background-color: rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        max-width: 800px;
+        margin: 0 auto;
+    }
+    .home-content h1 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 20px;
+        color: #ffca28;
+    }
+    .home-content p {
+        font-size: 1.25rem;
+        line-height: 1.6;
+        color: #f1f1f1;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-    Welcome to the Home Page
+<div class="home-wrapper">
+    <div class="home-content">
+        <h1>Welcome to the YouTube Analytics Dashboard</h1>
+        <p>Your one-stop solution to analyze and visualize your YouTube channel's performance.</p>
+    </div>
+</div>
 {% endblock %}
