@@ -10,20 +10,67 @@
         {% block title %}
         {% endblock %}
     </title>
+    <style>
+        body {
+            background: linear-gradient(to right, #0f2027, #203a43, #2c5364);
+            color: white;
+            font-family: -apple-system, BlinkMacSystemFont, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+        }
+        .navbar {
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .navbar-brand {
+            font-weight: 500;
+            letter-spacing: 1px;
+        }
+        .navbar-nav .nav-link {
+            font-weight: 400;
+            padding: 10px 20px;
+            transition: color 0.3s ease;
+        }
+        .navbar-nav .nav-link.active {
+            color: #fff;
+            background-color: transparent; /* Remove background color */
+        }
+        .navbar-nav .nav-link:hover {
+            background-color: #3b3b3b;
+            color: #ffca28;
+            border-radius: 5px;
+        }
+        .dropdown-menu {
+            background-color: #333;
+            border: none;
+        }
+        .dropdown-item {
+            color: #fff;
+            transition: background-color 0.3s ease;
+        }
+        .dropdown-item:hover {
+            background-color: #444;
+        }
+        .dropdown-menu-right .dropdown-item {
+            color: #fff;
+        }
+        .dropdown-menu-right .dropdown-item:hover {
+            background-color: #444;
+        }
+        {% block additional_styles %}
+        {% endblock %}
+    </style>
 </head>
 <body>
     <nav class="navbar navbar-expand-md navbar-dark bg-dark">
-        <a class="navbar-brand" href="#">Youtube Analytics Dashboard</a>
+        <a class="navbar-brand" href="{{ url_for('home_page') }}">Youtube Analytics Dashboard</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav">
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav mr-auto">
-                <li class="nav-item active">
-                    <a class="nav-link" href="{{ url_for('home_page') }}">Home <span class="sr-only">(current)</span></a>
+                <li class="nav-item">
+                    <a class="nav-link {% if request.endpoint == 'home_page' %}active{% endif %}" href="{{ url_for('home_page') }}">Home</a>
                 </li>
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="analyticsDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <a class="nav-link dropdown-toggle {% if request.endpoint == 'analytics_table_page' %}active{% endif %}" href="#" id="analyticsDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         Analytics
                     </a>
                     <div class="dropdown-menu" aria-labelledby="analyticsDropdown">
@@ -67,16 +114,9 @@
     {% block content %}
     {% endblock %}
     <!-- Optional JavaScript -->
-    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
     <script src='https://kit.fontawesome.com/a076d05399.js'></script>
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV" crossorigin="anonymous"></script>
 </body>
-<style>
-    body {
-        background-color: #212121;
-        color: white
-    }
-</style>
 </html>

@@ -3,9 +3,42 @@
 {% block title %}Donate{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <h1>Donate Page</h1>
-    <p>Thank you for considering a donation. Your support helps us continue to provide excellent service.</p>
-    <!-- You can add a donation form or link here -->
+<div class="container mt-4 text-center">
+    <h1>Donate</h1>
+    <p>Support our future projects and innovations. Every contribution makes a difference!</p>
+
+    <!-- Donation Button -->
+    <a href="https://www.paypal.com/donate/?hosted_button_id=7LTQQWBA73ZEE" class="btn btn-primary btn-lg mb-4" target="_blank" rel="noopener noreferrer">
+        Donate with PayPal
+    </a>
+
+    <!-- QR Code Section -->
+    <div class="qr-code-section">
+        <p>Scan the QR code to donate:</p>
+        <div class="qr-code-container">
+            <img src="\static\donation-qr-code.png" alt="QR Code" class="img-fluid rounded shadow">
+        </div>
+    </div>
 </div>
+
+<style>
+    .qr-code-section {
+        margin-top: 30px;
+    }
+    .qr-code-container {
+        display: inline-block;
+        padding: 10px;
+        background-color: #fff;
+        border-radius: 12px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        transition: transform 0.3s ease;
+    }
+    .qr-code-container:hover {
+        transform: scale(1.05);
+    }
+    .qr-code-container img {
+        max-width: 150px; /* Adjust size as needed */
+        height: auto;
+    }
+</style>
 {% endblock %}
