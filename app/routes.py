@@ -70,7 +70,7 @@ def oauth2callback():
         auth.CLIENT_SECRETS_FILE,
         scopes=auth.SCOPES,
         state=session['state'],
-        redirect_uri='https://youtube-analytics-dashboard-2ac54861e0a3.herokuapp.com/oauth2callback'
+        redirect_uri=url_for('oauth2callback', _external=True)
     )
     flow.fetch_token(authorization_response=request.url)
 
