@@ -5,7 +5,7 @@ import os
 import psycopg2
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///user_info.db'
+# app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///user_info.db'
 # # app.config['SQLALCHEMY_BINDS'] = {
 # #     'user_info': 'sqlite:///user_info.db'
 # # }
