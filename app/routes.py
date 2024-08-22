@@ -1,3 +1,5 @@
+from werkzeug.security import generate_password_hash
+
 from app import app, db
 from flask import render_template, redirect, url_for, flash, session, request
 from app.models import User, DeviceType, Day, Gender, Month, SharingService, UploaderType, Video
@@ -90,6 +92,7 @@ def oauth2callback():
         flash('User not found.', 'danger')
         return redirect(url_for('register_page'))
 
+
 @app.route('/register', methods=['GET', 'POST'])
 def register_page():
     form = RegisterForm()
@@ -97,16 +100,17 @@ def register_page():
         user_to_create = User(
             username=form.username.data,
             email_address=form.email_address.data,
-            password=form.password1.data
+            password_hash=form.password1.data
         )
         try:
             db.session.add(user_to_create)
             db.session.commit()
             login_user(user_to_create)
             session['user_id'] = user_to_create.id
-            return auth.start_oauth_flow()
+            return redirect(url_for('home_page'))
         except Exception as e:
             db.session.rollback()
+            print(f"Error during commit: {str(e)}")  # Print error for debugging
             flash(f'Error: {str(e)}', 'danger')
     else:
         flash('There were errors in the form. Please correct them and try again.', 'danger')
