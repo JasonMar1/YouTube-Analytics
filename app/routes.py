@@ -73,7 +73,7 @@ def oauth2callback():
         auth.CLIENT_SECRETS_FILE,
         scopes=auth.SCOPES,
         state=session['state'],
-        redirect_uri=url_for('oauth2callback', _external=True)
+        redirect_uri=url_for('oauth2callback', _external=True, _scheme='https')
     )
     print(url_for('oauth2callback', _external=True))
 
