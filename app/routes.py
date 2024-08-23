@@ -1,4 +1,4 @@
-from werkzeug.security import generate_password_hash
+
 
 from app import app, db
 from flask import render_template, redirect, url_for, flash, session, request
@@ -8,6 +8,7 @@ from flask_login import login_user, logout_user, login_required, current_user
 from YouTube_API_Request import auth
 from YouTube_API_Request.auth import json_to_credentials, credentials_to_json
 from YouTube_API_Request.request_main import request_data_for_user  # Import the function
+from werkzeug.security import generate_password_hash
 
 # The mock function is no longer needed; remove or comment it out if you wish.
 
@@ -100,7 +101,8 @@ def register_page():
         user_to_create = User(
             username=form.username.data,
             email_address=form.email_address.data,
-            password_hash=form.password1.data
+            password_hash=generate_password_hash(form.password1.data)
+
         )
         try:
             db.session.add(user_to_create)
