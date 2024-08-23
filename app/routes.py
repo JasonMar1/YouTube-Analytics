@@ -75,6 +75,8 @@ def oauth2callback():
         state=session['state'],
         redirect_uri=url_for('oauth2callback', _external=True)
     )
+    print(url_for('oauth2callback', _external=True))
+
     flow.fetch_token(authorization_response=request.url)
 
     credentials = flow.credentials
