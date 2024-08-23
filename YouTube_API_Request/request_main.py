@@ -4,6 +4,7 @@ from YouTube_API_Request.auth import get_authenticated_service
 from YouTube_API_Request.data_processor import save_to_db
 from YouTube_API_Request.api_requests import request
 from app import app, db
+from sqlalchemy.exc import SQLAlchemyError
 
 def request_data_for_user():
     # Ensure the user is logged in by checking the session
@@ -25,15 +26,31 @@ def request_data_for_user():
         # Iterate over the data and save each dataset to the database
         for dataset in data:
             table_name = dataset['columnHeaders'][0]['name']
+
+            # Debugging prints for verification
             print("-------------------------")
-            print(table_name)
-            print(dataset)
-            print(user_id)
+            print(f"Table Name: {table_name}")
+            print(f"Dataset: {dataset}")
+            print(f"User ID: {user_id}")
+
             # Save the data to the database using save_to_db
             save_to_db(dataset, db, table_name, user_id)
 
         flash("Data has been saved to the database.", 'success')
 
+    except SQLAlchemyError as e:
+        # Handle SQLAlchemy-specific errors
+        db.session.rollback()
+        flash(f"A database error occurred: {str(e)}", 'danger')
+        app.logger.error(f"Database error: {str(e)}")
+
     except Exception as e:
+        # Handle any other exceptions
         flash(f"An error occurred while requesting data: {str(e)}", 'danger')
-        return redirect(url_for('home_page'))
+        app.logger.error(f"General error: {str(e)}")
+
+    finally:
+        # Ensure the session is always committed or rolled back
+        db.session.remove()
+
+    return redirect(url_for('home_page'))

@@ -62,6 +62,7 @@ def get_authenticated_service(user_id):
         return start_oauth_flow()
 
     credentials = json_to_credentials(user.google_credentials)
+    print(credentials_to_json(credentials))
 
     if credentials.expired and credentials.refresh_token:
         credentials.refresh(Request())
