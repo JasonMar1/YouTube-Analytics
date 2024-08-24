@@ -5,9 +5,11 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
 from sqlalchemy.ext.declarative import declared_attr
 
+
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
+
 
 class User(db.Model, UserMixin):
     __tablename__ = 'user'
@@ -27,6 +29,7 @@ class User(db.Model, UserMixin):
 
     def check_password_correction(self, attempted_password):
         return check_password_hash(self.password_hash, attempted_password)
+
 
 # Base class for dimensions
 class BaseDimension(db.Model):
@@ -73,35 +76,42 @@ class BaseDimension(db.Model):
     videosRemovedFromPlaylists = db.Column(db.Integer(), nullable=True)
     viewerPercentage = db.Column(db.Float(), nullable=True)
 
+
 # DeviceType dimension
 class DeviceType(BaseDimension):
     __tablename__ = 'deviceType'
     deviceType = db.Column(db.String(length=50), nullable=True)
+
 
 # Day dimension
 class Day(BaseDimension):
     __tablename__ = 'day'
     day = db.Column(db.Date(), nullable=True)
 
+
 # Gender dimension
 class Gender(BaseDimension):
     __tablename__ = 'gender'
     gender = db.Column(db.String(length=10), nullable=True)
+
 
 # Month dimension
 class Month(BaseDimension):
     __tablename__ = 'month'
     month = db.Column(db.String(length=10), nullable=True)
 
+
 # SharingService dimension
 class SharingService(BaseDimension):
     __tablename__ = 'sharing_service'
     sharingService = db.Column(db.String(length=50), nullable=True)
 
+
 # UploaderType dimension
 class UploaderType(BaseDimension):
     __tablename__ = 'uploader_type'
     uploaderType = db.Column(db.String(length=50), nullable=True)
+
 
 # Video dimension
 class Video(BaseDimension):
