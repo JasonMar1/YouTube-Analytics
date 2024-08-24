@@ -17,10 +17,8 @@ CLIENT_SECRETS_FILE = '/app/app/client_secret_70557108520-nvee7f4fus7n6pdm839ven
 # Scopes required for accessing YouTube data
 SCOPES = [
     'https://www.googleapis.com/auth/yt-analytics.readonly',
-    'https://www.googleapis.com/auth/youtube',
     'https://www.googleapis.com/auth/youtube.force-ssl',
     'https://www.googleapis.com/auth/youtube.readonly',
-    'https://www.googleapis.com/auth/youtube.upload',
     'https://www.googleapis.com/auth/youtubepartner',
     'https://www.googleapis.com/auth/youtubepartner-channel-audit'
 ]
