@@ -1,3 +1,4 @@
+
 from app import app, db
 from flask import render_template, redirect, url_for, flash, session, request
 from app.models import User, DeviceType, Day, Gender, Month, SharingService, UploaderType, Video
@@ -8,13 +9,11 @@ from YouTube_API_Request.auth import json_to_credentials, credentials_to_json
 from YouTube_API_Request.request_main import request_data_for_user  # Import the function
 from werkzeug.security import generate_password_hash
 
-
 # The mock function is no longer needed; remove or comment it out if you wish.
 
 @app.route('/')
 def home_page():
     return render_template('home.html')
-
 
 @app.route('/analytics/<table_name>')
 @login_required
@@ -66,7 +65,6 @@ def analytics_table_page(table_name):
     #         flash(f'Table {table_name} does not exist in the database.', 'danger')
     #         return redirect(url_for('home_page'))
     # return render_template('analytics_page.html', tables_data=tables_data, getattr=getattr)
-
 
 @app.route('/oauth2callback')
 def oauth2callback():
@@ -127,14 +125,12 @@ def register_page():
         flash('There were errors in the form. Please correct them and try again.', 'danger')
     return render_template('register.html', form=form)
 
-
 @app.route('/google_signup')
 def google_signup():
     if 'user_id' not in session:
         flash('Please register first.', 'danger')
         return redirect(url_for('register_page'))
     return auth.start_oauth_flow()
-
 
 @app.route('/login', methods=['GET', 'POST'])
 def login_page():
@@ -156,7 +152,6 @@ def login_page():
             flash('Login failed. Check your username and/or password.', 'danger')
     return render_template('login.html', form=form)
 
-
 @app.route('/logout')
 def logout_page():
     logout_user()
@@ -164,12 +159,10 @@ def logout_page():
     flash("You have been logged out!", category='info')
     return redirect(url_for("home_page"))
 
-
 @app.route('/profile')
 @login_required
 def profile_page():
     return render_template('profile.html')
-
 
 @app.route('/google_auth_status')
 @login_required
@@ -182,41 +175,27 @@ def google_auth_status_page():
         flash('User session not found.', 'danger')
         return redirect(url_for('login_page'))
 
-
 @app.route('/donate')
 @login_required
 def donate_page():
     return render_template('donate.html')
 
-
-@app.route('/request_data', methods=['GET', 'POST'])
+@app.route('/request_data')
 @login_required
 def request_data():
-    if request.method == 'POST':
-        # Fetch the user ID from the session
-        user_id = session.get('user_id')
-        if not user_id:
-            flash('User session not found.', 'danger')
-            return redirect(url_for('login_page'))
+    # Fetch the user ID from the session
+    user_id = session.get('user_id')
+    if not user_id:
+        flash('User session not found.', 'danger')
+        return redirect(url_for('login_page'))
 
-        # Get the start and end dates from the form
-        start_date = request.form.get('start_date')
-        end_date = request.form.get('end_date')
+    try:
+        # Execute the request_data_for_user function
+        request_data_for_user()
+    except Exception as e:
+        flash(f'Error requesting data: {str(e)}', 'danger')
 
-        if not start_date or not end_date:
-            flash('Please select both start and end dates.', 'danger')
-            return redirect(url_for('home_page'))
-
-        try:
-            # Execute the request_data_for_user function with the selected date range
-            request_data_for_user(start_date, end_date)
-        except Exception as e:
-            flash(f'Error requesting data: {str(e)}', 'danger')
-
-        return redirect(url_for('home_page'))
-    else:
-        return redirect(url_for('home_page'))
-
+    return redirect(url_for('login_page'))
 
 if __name__ == '__main__':
     app.run(debug=True)
