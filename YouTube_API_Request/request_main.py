@@ -1,13 +1,10 @@
 from flask import session, flash, redirect, url_for
-from YouTube_API_Request.auth import get_authenticated_service, json_to_credentials
+from YouTube_API_Request.auth import get_authenticated_service
 from YouTube_API_Request.data_processor import save_to_db
 from YouTube_API_Request.api_requests import request
 from app import app, db
 from sqlalchemy.exc import SQLAlchemyError
 import logging
-
-from app.models import load_user
-
 
 def request_data_for_user():
     user_id = session.get('user_id')
