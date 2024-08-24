@@ -12,7 +12,7 @@ import os
 os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
 
 # Path to the client secrets JSON file
-CLIENT_SECRETS_FILE = 'app/client_secret_70557108520-nvee7f4fus7n6pdm839venm3664vjb4v.apps.googleusercontent.com.json'
+CLIENT_SECRETS_FILE = 'client_secret_70557108520-nvee7f4fus7n6pdm839venm3664vjb4v.apps.googleusercontent.com.json'
 
 # Scopes required for accessing YouTube data
 SCOPES = [
@@ -25,15 +25,18 @@ SCOPES = [
     'https://www.googleapis.com/auth/youtubepartner-channel-audit'
 ]
 
+# Static redirect URI registered in the Google Cloud Console
+REDIRECT_URI = 'https://youtube-analytics-dashboard-2ac54861e0a3.herokuapp.com/oauth2callback'
+
 def start_oauth_flow():
     flow = Flow.from_client_secrets_file(
         CLIENT_SECRETS_FILE,
         scopes=SCOPES,
-        redirect_uri=url_for('oauth2callback', _external=True)  # Dynamic redirect URI for Flask
+        redirect_uri=REDIRECT_URI  # Static redirect URI
     )
     authorization_url, state = flow.authorization_url(
-        access_type='online',  # Ensures that a refresh token is received
-        include_granted_scopes='false'  # Prevents the user from being prompted again if they already granted permissions
+        access_type='offline',  # Ensures that a refresh token is received
+        include_granted_scopes='true'  # Prevents the user from being prompted again if they already granted permissions
     )
     session['state'] = state
     return redirect(authorization_url)
@@ -48,7 +51,7 @@ def oauth2callback():
         CLIENT_SECRETS_FILE,
         scopes=SCOPES,
         state=state,
-        redirect_uri=url_for('oauth2callback', _external=True)
+        redirect_uri=REDIRECT_URI  # Static redirect URI
     )
 
     flow.fetch_token(authorization_response=request.url)
@@ -86,7 +89,7 @@ def get_authenticated_service(user_id):
 
     return build('youtubeAnalytics', 'v2', credentials=credentials)
 
-def credentials_to_json(credentials: object) -> object:
+def credentials_to_json(credentials):
     """Converts Google OAuth2 Credentials object to a dictionary."""
     return {
         'token': credentials.token,

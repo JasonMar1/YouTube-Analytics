@@ -73,7 +73,8 @@ def oauth2callback():
         auth.CLIENT_SECRETS_FILE,
         scopes=auth.SCOPES,
         state=session['state'],
-        redirect_uri=url_for('oauth2callback', _external=True, _scheme='https')
+        # redirect_uri=url_for('oauth2callback', _external=True, _scheme='https')
+        redirect_uri='https://youtube-analytics-dashboard-2ac54861e0a3.herokuapp.com/oauth2callback'
     )
     print(url_for('oauth2callback', _external=True))
 
