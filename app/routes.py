@@ -1,5 +1,4 @@
 
-
 from app import app, db
 from flask import render_template, redirect, url_for, flash, session, request
 from app.models import User, DeviceType, Day, Gender, Month, SharingService, UploaderType, Video
@@ -193,7 +192,6 @@ def request_data():
     try:
         # Execute the request_data_for_user function
         request_data_for_user()
-        flash('Data requested and saved successfully.', 'success')
     except Exception as e:
         flash(f'Error requesting data: {str(e)}', 'danger')
 

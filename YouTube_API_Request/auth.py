@@ -91,7 +91,7 @@ def get_authenticated_service(user_id):
         return start_oauth_flow()
 
     credentials = json_to_credentials(user.google_credentials)  # Deserialize from JSON string
-    flash(credentials.refresh_token, category='danger')  # Flashes refresh_token value
+    # flash(credentials.refresh_token, category='danger')  # Flashes refresh_token value
 
     if credentials.expired and credentials.refresh_token:
         try:
