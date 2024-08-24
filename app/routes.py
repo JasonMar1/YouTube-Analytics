@@ -80,7 +80,12 @@ def oauth2callback():
     flow.fetch_token(authorization_response=request.url)
 
     credentials = flow.credentials
+
     print(credentials)
+    if not credentials.refresh_token:
+        flash('Refresh token not found. Please re-authenticate.', 'danger')
+        return redirect(url_for('login_page'))
+
     session['credentials'] = credentials_to_json(credentials)
 
     # Create or update user with Google credentials

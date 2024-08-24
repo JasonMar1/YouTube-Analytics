@@ -1,14 +1,20 @@
-# auth.py
 from google_auth_oauthlib.flow import Flow
 from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
+from google.auth.transport.requests import Request
 from flask import session, redirect, url_for, request, flash
 from app import db
 from app.models import User
+import json
 import os
 
+# Environment setup to allow HTTP (for development purposes)
 os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
-CLIENT_SECRETS_FILE = 'app/client_secret_70557108520-nvee7f4fus7n6pdm839venm3664vjb4v.apps.googleusercontent.com.json'
+
+# Path to the client secrets JSON file
+CLIENT_SECRETS_FILE = 'client_secret_70557108520-nvee7f4fus7n6pdm839venm3664vjb4v.apps.googleusercontent.com.json'
+
+# Scopes required for accessing YouTube data
 SCOPES = [
     'https://www.googleapis.com/auth/yt-analytics.readonly',
     'https://www.googleapis.com/auth/youtube',
@@ -23,34 +29,38 @@ def start_oauth_flow():
     flow = Flow.from_client_secrets_file(
         CLIENT_SECRETS_FILE,
         scopes=SCOPES,
-        redirect_uri="https://youtube-analytics-dashboard-2ac54861e0a3.herokuapp.com/oauth2callback"
+        redirect_uri=url_for('oauth2callback', _external=True)  # Dynamic redirect URI for Flask
     )
     authorization_url, state = flow.authorization_url(
-        access_type='offline',
-        include_granted_scopes='true'
+        access_type='online',  # Ensures that a refresh token is received
+        include_granted_scopes='false'  # Prevents the user from being prompted again if they already granted permissions
     )
     session['state'] = state
     return redirect(authorization_url)
 
 def oauth2callback():
-    state = session['state']
+    state = session.get('state')
+    if not state:
+        flash("State parameter missing or session expired.", "danger")
+        return redirect(url_for('home_page'))
+
     flow = Flow.from_client_secrets_file(
         CLIENT_SECRETS_FILE,
         scopes=SCOPES,
         state=state,
         redirect_uri=url_for('oauth2callback', _external=True)
     )
+
     flow.fetch_token(authorization_response=request.url)
-
     credentials = flow.credentials
-    session['credentials'] = credentials_to_dict(credentials)
 
-    # Save credentials to the user in the database
+    # Save credentials to the user's record in the database
     if 'user_id' in session:
         user = User.query.get(session['user_id'])
         if user:
-            user.google_credentials = credentials_to_json(credentials)
+            user.google_credentials = json.dumps(credentials_to_json(credentials))  # Serialize to JSON string
             db.session.commit()
+            flash("Authentication successful.", "success")
             return redirect(url_for('home_page'))
     else:
         flash('User session not found.', 'danger')
@@ -61,19 +71,23 @@ def get_authenticated_service(user_id):
     if not user or not user.google_credentials:
         return start_oauth_flow()
 
-    credentials = json_to_credentials(user.google_credentials)
-    print(credentials_to_json(credentials))
+    credentials = json_to_credentials(user.google_credentials)  # Deserialize from JSON string
 
     if credentials.expired and credentials.refresh_token:
-        credentials.refresh(Request())
+        try:
+            credentials.refresh(Request())
+        except Exception as e:
+            print(f"Error refreshing credentials: {e}")
+            return start_oauth_flow()
 
         # Update the refreshed credentials in the database
-        user.google_credentials = credentials_to_json(credentials)
+        user.google_credentials = json.dumps(credentials_to_json(credentials))  # Serialize to JSON string
         db.session.commit()
 
     return build('youtubeAnalytics', 'v2', credentials=credentials)
 
-def credentials_to_json(credentials):
+def credentials_to_json(credentials: object) -> object:
+    """Converts Google OAuth2 Credentials object to a dictionary."""
     return {
         'token': credentials.token,
         'refresh_token': credentials.refresh_token,
@@ -84,11 +98,12 @@ def credentials_to_json(credentials):
     }
 
 def json_to_credentials(json_data):
+    """Converts a dictionary to a Google OAuth2 Credentials object."""
     return Credentials(
-        token=json_data['token'],
-        refresh_token=json_data['refresh_token'],
-        token_uri=json_data['token_uri'],
-        client_id=json_data['client_id'],
-        client_secret=json_data['client_secret'],
-        scopes=json_data['scopes']
+        token=json_data.get('token'),
+        refresh_token=json_data.get('refresh_token'),
+        token_uri=json_data.get('token_uri'),
+        client_id=json_data.get('client_id'),
+        client_secret=json_data.get('client_secret'),
+        scopes=json_data.get('scopes')
     )
