@@ -28,6 +28,7 @@ SCOPES = [
 # Static redirect URI registered in the Google Cloud Console
 REDIRECT_URI = 'https://youtube-analytics-dashboard-2ac54861e0a3.herokuapp.com/oauth2callback'
 
+
 def start_oauth_flow():
     flow = Flow.from_client_secrets_file(
         CLIENT_SECRETS_FILE,
@@ -40,6 +41,7 @@ def start_oauth_flow():
     )
     session['state'] = state
     return redirect(authorization_url)
+
 
 def oauth2callback():
     state = session.get('state')
@@ -69,6 +71,7 @@ def oauth2callback():
         flash('User session not found.', 'danger')
         return redirect(url_for('register_page'))
 
+
 def get_authenticated_service(user_id):
     user = User.query.get(user_id)
     if not user or not user.google_credentials:
@@ -89,6 +92,7 @@ def get_authenticated_service(user_id):
 
     return build('youtubeAnalytics', 'v2', credentials=credentials)
 
+
 def credentials_to_json(credentials):
     """Converts Google OAuth2 Credentials object to a dictionary."""
     return {
@@ -99,6 +103,7 @@ def credentials_to_json(credentials):
         'client_secret': credentials.client_secret,
         'scopes': credentials.scopes
     }
+
 
 def json_to_credentials(json_data):
     """Converts a dictionary to a Google OAuth2 Credentials object."""

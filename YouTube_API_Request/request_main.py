@@ -7,6 +7,8 @@ from sqlalchemy.exc import SQLAlchemyError
 import logging
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
+from app.models import load_user
+import json
 
 def request_data_for_user():
     # Ensure the user is logged in by checking the session
@@ -16,25 +18,32 @@ def request_data_for_user():
         return redirect(url_for('login_page'))
 
     try:
-        # Retrieve stored credentials from the session
-        credentials_json = session.get('credentials')
-        if not credentials_json:
+        # Retrieve the User object from the database
+        user = load_user(user_id).query.get(user_id)
+        if not user or not user.google_credentials:
             flash('No credentials found. Please re-authenticate.', 'danger')
             return redirect(url_for('google_signup'))
 
-        credentials = json_to_credentials(credentials_json)
+        # Convert the JSON credentials string from the database to a Credentials object
+        credentials = json_to_credentials(user.google_credentials)
 
         # Refresh the credentials if they are expired
         if credentials.expired and credentials.refresh_token:
-            credentials.refresh(Request())
-            # Save the refreshed credentials back to the session
-            session['credentials'] = credentials_to_json(credentials)
+            try:
+                credentials.refresh(Request())
+                # Save the refreshed credentials back to the database
+                user.google_credentials = json.dumps(credentials_to_json(credentials))
+                db.session.commit()
+            except Exception as e:
+                flash(f"Error refreshing credentials: {str(e)}", 'danger')
+                app.logger.error(f"Error refreshing credentials: {str(e)}")
+                return redirect(url_for('google_signup'))
         elif credentials.expired:
             flash('The credentials have expired and cannot be refreshed. Please re-authenticate.', 'danger')
             return redirect(url_for('google_signup'))
 
-        # Get the authenticated service using the refreshed credentials
-        authenticated_service = get_authenticated_service(credentials)
+        # Get the authenticated service using the (refreshed) credentials
+        authenticated_service = get_authenticated_service(user_id)
 
         # Define the date range for data request
         start = '2023-01-01'
@@ -80,3 +89,4 @@ def request_data_for_user():
         db.session.remove()
 
     return redirect(url_for('home_page'))
+
