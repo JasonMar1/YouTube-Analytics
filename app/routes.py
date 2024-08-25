@@ -40,16 +40,24 @@ def analytics_table_page(table_name):
         # Query for data specific to the logged-in user
         items = db.session.query(model_class).filter_by(user_id=current_user.id).all()
 
+        # Process data to remove 'id' and 'user_id' columns
+        processed_rows = []
+        for item in items:
+            row = {column.name: getattr(item, column.name) for column in model_class.__table__.columns if column.name not in ['id', 'user_id']}
+            processed_rows.append(row)
+
         # Store the rows and column names
         tables_data[table_name] = {
-            "rows": items,
-            "columns": [column.name for column in model_class.__table__.columns]
+            "rows": processed_rows,
+            "columns": [column.name for column in model_class.__table__.columns if column.name not in ['id', 'user_id']]
         }
     except Exception as e:
         flash(f'Error retrieving data: {str(e)}', 'danger')
         return redirect(url_for('home_page'))
 
     return render_template('analytics_page.html', tables_data=tables_data, getattr=getattr)
+
+
     # tables_data = {}
     # with app.app_context():
     #     db.reflect()  # Reflect all binds

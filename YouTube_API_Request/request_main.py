@@ -23,6 +23,15 @@ from app.models import load_user, DeviceType, Day, Gender, Month, SharingService
 import json
 
 
+def prepare_data_for_display(data):
+    processed_data = []
+    for row in data:
+        # Exclude 'id' and 'user_id' from the row
+        filtered_row = {key: value for key, value in row.items() if key not in ['id', 'user_id']}
+        processed_data.append(filtered_row)
+    return processed_data
+
+
 def clear_user_data(user_id):
     """Clear all previous data for the user."""
     try:
@@ -87,6 +96,9 @@ def request_data_for_user(start, end):
             app.logger.error(f"API request error: {str(api_error)}")
             return redirect(url_for('home_page'))
 
+        # Prepare data for display (exclude 'id' and 'user_id')
+        display_data = prepare_data_for_display(data)
+
         # Iterate over the data and save each dataset to the database
         for dataset in data:
             table_name = dataset['columnHeaders'][0]['name']
@@ -112,4 +124,6 @@ def request_data_for_user(start, end):
         # Ensure the session is always committed or rolled back
         db.session.remove()
 
+    # Here you would pass `display_data` to your template or return it in your response.
     return redirect(url_for('home_page'))
+

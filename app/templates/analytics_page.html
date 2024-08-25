@@ -8,24 +8,42 @@
     <div class="container mt-4">
         {% for table_name, table_data in tables_data.items() %}
             <h2>{{ table_name }} Data</h2>
-            <table class="table table-dark table-striped">
-                <thead>
-                    <tr>
-                        {% for column in table_data.columns %}
-                            <th>{{ column }}</th>
-                        {% endfor %}
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for item in table_data.rows %}
+            <div class="table-responsive">
+                <table class="table table-dark table-striped">
+                    <thead>
                         <tr>
                             {% for column in table_data.columns %}
-                                <td>{{ getattr(item, column) }}</td>
+                                <th class="{% if column|lower in ['day', 'month'] %}date-column{% endif %}">{{ column }}</th>
                             {% endfor %}
                         </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        {% for row in table_data.rows %}
+                            <tr>
+                                {% for column in table_data.columns %}
+                                    <td class="{% if column|lower in ['day', 'month'] %}date-column{% endif %}">{{ row[column] }}</td>
+                                {% endfor %}
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         {% endfor %}
     </div>
+{% endblock %}
+
+{% block additional_styles %}
+<style>
+    /* Ensure the table is horizontally scrollable if needed */
+    .table-responsive {
+        overflow-x: auto;
+    }
+
+    /* Apply custom styles to day and month columns */
+    .date-column {
+        white-space: nowrap; /* Prevents wrapping */
+        width: 150px; /* Adjust the width as needed */
+        text-align: center; /* Center the text (optional) */
+    }
+</style>
 {% endblock %}
