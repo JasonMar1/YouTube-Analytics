@@ -69,58 +69,61 @@
     </style>
 </head>
 <body>
-    <nav class="navbar navbar-expand-md navbar-dark bg-dark">
-        <a class="navbar-brand" href="{{ url_for('home_page') }}">Youtube Analytics Dashboard</a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav mr-auto">
-                <li class="nav-item">
-                    <a class="nav-link {% if request.endpoint == 'home_page' %}active{% endif %}" href="{{ url_for('home_page') }}">Home</a>
-                </li>
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle {% if request.endpoint == 'analytics_table_page' %}active{% endif %}" href="#" id="analyticsDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        Analytics
-                    </a>
-                    <div class="dropdown-menu" aria-labelledby="analyticsDropdown">
-                        <a class="dropdown-item" href="{{ url_for('analytics_table_page', table_name='day') }}">Day</a>
-                        <a class="dropdown-item" href="{{ url_for('analytics_table_page', table_name='month') }}">Month</a>
-                        <a class="dropdown-item" href="{{ url_for('analytics_table_page', table_name='deviceType') }}">Device Type</a>
-                    </div>
-                </li>
-            </ul>
-            {% if current_user.is_authenticated %}
-            <ul class="navbar-nav">
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('request_data') }}">Request Data</a>
-                </li>
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        Welcome, {{ current_user.username }}
-                    </a>
-                    <div class="dropdown-menu dropdown-menu-right" aria-labelledby="userDropdown">
-                        <a class="dropdown-item" href="{{ url_for('profile_page') }}">Profile</a>
-                        <a class="dropdown-item" href="{{ url_for('google_auth_status_page') }}">Google Authentication Status</a>
-                        <a class="dropdown-item" href="{{ url_for('donate_page') }}">Donate Here</a>
-                    </div>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('logout_page') }}">Logout</a>
-                </li>
-            </ul>
-            {% else %}
-            <ul class="navbar-nav">
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('login_page') }}">Login</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('register_page') }}">Register</a>
-                </li>
-            </ul>
-            {% endif %}
-        </div>
-    </nav>
+<nav class="navbar navbar-expand-md navbar-dark bg-dark">
+    <a class="navbar-brand" href="{{ url_for('home_page') }}">Youtube Analytics Dashboard</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav mr-auto">
+            <!-- Existing Links -->
+            <li class="nav-item">
+                <a class="nav-link {% if request.endpoint == 'home_page' %}active{% endif %}" href="{{ url_for('home_page') }}">Home</a>
+            </li>
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle {% if request.endpoint == 'analytics_table_page' %}active{% endif %}" href="#" id="analyticsDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Analytics
+                </a>
+                <div class="dropdown-menu" aria-labelledby="analyticsDropdown">
+                    <a class="dropdown-item" href="{{ url_for('analytics_table_page', table_name='day') }}">Day</a>
+                    <a class="dropdown-item" href="{{ url_for('analytics_table_page', table_name='month') }}">Month</a>
+                    <a class="dropdown-item" href="{{ url_for('analytics_table_page', table_name='deviceType') }}">Device Type</a>
+                </div>
+            </li>
+        </ul>
+        {% if current_user.is_authenticated %}
+        <ul class="navbar-nav">
+            <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('request_page') }}">Request</a>
+            </li>
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Welcome, {{ current_user.username }}
+                </a>
+                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="userDropdown">
+                    <a class="dropdown-item" href="{{ url_for('profile_page') }}">Profile</a>
+                    <a class="dropdown-item" href="{{ url_for('google_signup') }}">Google Signup</a>
+                    <a class="dropdown-item" href="{{ url_for('google_auth_status_page') }}">Google Authentication Status</a>
+                    <a class="dropdown-item" href="{{ url_for('donate_page') }}">Donate Here</a>
+                </div>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('logout_page') }}">Logout</a>
+            </li>
+        </ul>
+        {% else %}
+        <ul class="navbar-nav">
+            <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('login_page') }}">Login</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('register_page') }}">Register</a>
+            </li>
+        </ul>
+        {% endif %}
+    </div>
+</nav>
+
 
     <!-- Flash Messages -->
     <div class="flash-messages">

@@ -11,7 +11,7 @@ from app.models import load_user
 import json
 
 
-def request_data_for_user():
+def request_data_for_user(start, end):
     # Ensure the user is logged in by checking the session
     user_id = session.get('user_id')
     if not user_id:
@@ -46,10 +46,6 @@ def request_data_for_user():
         # Get the authenticated service using the (refreshed) credentials
         authenticated_service = get_authenticated_service(user_id)
 
-        # Define the date range for data request
-        start = '2023-01-01'
-        end = '2024-01-01'
-
         # Make the API request and process the data
         try:
             data = request(authenticated_service, start, end)
@@ -61,12 +57,6 @@ def request_data_for_user():
         # Iterate over the data and save each dataset to the database
         for dataset in data:
             table_name = dataset['columnHeaders'][0]['name']
-
-            # Debugging prints for verification
-            app.logger.debug("-------------------------")
-            app.logger.debug(f"Table Name: {table_name}")
-            app.logger.debug(f"Dataset: {dataset}")
-            app.logger.debug(f"User ID: {user_id}")
 
             try:
                 # Save the data to the database using save_to_db
