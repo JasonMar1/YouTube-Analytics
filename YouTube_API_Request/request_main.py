@@ -10,6 +10,36 @@ from google.oauth2.credentials import Credentials
 from app.models import load_user
 import json
 
+from flask import session, flash, redirect, url_for
+from YouTube_API_Request.auth import get_authenticated_service, json_to_credentials, credentials_to_json
+from YouTube_API_Request.data_processor import save_to_db
+from YouTube_API_Request.api_requests import request
+from app import app, db
+from sqlalchemy.exc import SQLAlchemyError
+from google.auth.transport.requests import Request
+from google.oauth2.credentials import Credentials
+from app.models import load_user, DeviceType, Day, Gender, Month, SharingService, UploaderType, \
+    Video  # Add your models here
+import json
+
+
+def clear_user_data(user_id):
+    """Clear all previous data for the user."""
+    try:
+        db.session.query(DeviceType).filter_by(user_id=user_id).delete()
+        db.session.query(Day).filter_by(user_id=user_id).delete()
+        db.session.query(Gender).filter_by(user_id=user_id).delete()
+        db.session.query(Month).filter_by(user_id=user_id).delete()
+        db.session.query(SharingService).filter_by(user_id=user_id).delete()
+        db.session.query(UploaderType).filter_by(user_id=user_id).delete()
+        db.session.query(Video).filter_by(user_id=user_id).delete()
+        db.session.commit()
+    except SQLAlchemyError as e:
+        db.session.rollback()
+        flash(f"A database error occurred while clearing previous data: {str(e)}", 'danger')
+        app.logger.error(f"Database error: {str(e)}")
+        raise
+
 
 def request_data_for_user(start, end):
     # Ensure the user is logged in by checking the session
@@ -42,6 +72,9 @@ def request_data_for_user(start, end):
         elif credentials.expired:
             flash('The credentials have expired and cannot be refreshed. Please re-authenticate.', 'danger')
             return redirect(url_for('google_signup'))
+
+        # Clear user's previous data before saving new data
+        clear_user_data(user_id)
 
         # Get the authenticated service using the (refreshed) credentials
         authenticated_service = get_authenticated_service(user_id)
