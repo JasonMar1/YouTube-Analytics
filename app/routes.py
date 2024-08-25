@@ -9,17 +9,16 @@ from YouTube_API_Request.request_main import request_data_for_user  # Import the
 from werkzeug.security import generate_password_hash
 
 
-# The mock function is no longer needed; remove or comment it out if you wish.
-
 @app.route('/')
 def home_page():
     return render_template('home.html')
 
 
-@app.route('/analytics/<table_name>')
+@app.route('/analytics/<table_name>', methods=['GET'])
 @login_required
 def analytics_table_page(table_name):
     tables_data = {}
+    selected_columns = request.args.getlist('columns')  # Get selected columns from the form
 
     # Ensure the table name is valid
     model_class = {
@@ -47,15 +46,19 @@ def analytics_table_page(table_name):
             processed_rows.append(row)
 
         # Store the rows and column names
+        all_columns = [column.name for column in model_class.__table__.columns if column.name not in ['id', 'user_id']]
         tables_data[table_name] = {
             "rows": processed_rows,
-            "columns": [column.name for column in model_class.__table__.columns if column.name not in ['id', 'user_id']]
+            "columns": all_columns
         }
     except Exception as e:
         flash(f'Error retrieving data: {str(e)}', 'danger')
         return redirect(url_for('home_page'))
 
-    return render_template('analytics_page.html', tables_data=tables_data, getattr=getattr)
+    return render_template('analytics_page.html', tables_data=tables_data, selected_columns=selected_columns)
+
+
+
 
 
     # tables_data = {}
