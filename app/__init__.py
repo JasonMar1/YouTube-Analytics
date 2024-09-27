@@ -9,7 +9,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('SQLALCHEMY_DATABASE_URI')
 # # app.config['SQLALCHEMY_BINDS'] = {
 # #     'user_info': 'sqlite:///user_info.db'
 # # }
-app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
+app.config['SECRET_KEY'] = '085559c59aae537ebb4942f9'
 app.config['SQLALCHEMY_ECHO'] = True
 
 try:
