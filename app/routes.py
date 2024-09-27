@@ -42,7 +42,8 @@ def analytics_table_page(table_name):
         # Process data to remove 'id' and 'user_id' columns
         processed_rows = []
         for item in items:
-            row = {column.name: getattr(item, column.name) for column in model_class.__table__.columns if column.name not in ['id', 'user_id']}
+            row = {column.name: getattr(item, column.name) for column in model_class.__table__.columns if
+                   column.name not in ['id', 'user_id']}
             processed_rows.append(row)
 
         # Store the rows and column names
@@ -56,10 +57,6 @@ def analytics_table_page(table_name):
         return redirect(url_for('home_page'))
 
     return render_template('analytics_page.html', tables_data=tables_data, selected_columns=selected_columns)
-
-
-
-
 
     # tables_data = {}
     # with app.app_context():
@@ -224,7 +221,6 @@ def request_data():
         flash(f'Error requesting data: {str(e)}', 'danger')
 
     return redirect(url_for('home_page'))
-
 
 
 @app.route('/request')
