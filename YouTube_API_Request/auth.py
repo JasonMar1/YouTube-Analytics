@@ -18,7 +18,15 @@ CLIENT_SECRETS_FILE = ('/app/app/client_secret_70557108520-nvee7f4fus7n6pdm839ve
 
 
 # Scopes required for accessing YouTube data
-SCOPES = os.getenv('SCOPES')
+SCOPES = [
+    'https://www.googleapis.com/auth/yt-analytics.readonly',
+    'https://www.googleapis.com/auth/youtube',
+    'https://www.googleapis.com/auth/youtube.force-ssl',
+    'https://www.googleapis.com/auth/youtube.readonly',
+    'https://www.googleapis.com/auth/youtube.upload',
+    'https://www.googleapis.com/auth/youtubepartner',
+    'https://www.googleapis.com/auth/youtubepartner-channel-audit'
+]
 
 # Static redirect URI registered in the Google Cloud Console
 REDIRECT_URI = 'https://youtube-analytics-dashboard-2ac54861e0a3.herokuapp.com/oauth2callback'
