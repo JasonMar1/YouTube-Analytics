@@ -19,30 +19,33 @@ def home_page():
 def change_password():
     form = ChangePasswordForm()
 
-    if form.validate_on_submit():
-        # Check if the current password is correct
-        if not current_user.check_password_correction(attempted_password=form.current_password.data):
-            flash('Current password is incorrect. Please try again.', 'danger')
-            return redirect(url_for('change_password'))
+    # Handle POST request (form submission)
+    if request.method == 'POST':
+        if form.validate():  # Validate form inputs first
+            # Check if the current password is correct
+            if not current_user.check_password_correction(attempted_password=form.current_password.data):
+                flash('Current password is incorrect. Please try again.', 'danger')
+                return redirect(url_for('change_password'))
 
-        # Check if the new password and confirmation match
-        if form.new_password.data != form.confirm_new_password.data:
-            flash('New password and confirmation do not match. Please try again.', 'danger')
-            print('fddffdfd')
-            return redirect(url_for('home'))
+            # Check if the new password and confirmation match
+            if form.new_password.data != form.confirm_new_password.data:
+                flash('New password and confirmation do not match. Please try again.', 'danger')
+                return redirect(url_for('change_password'))
 
+            # Update the password
+            current_user.password = form.new_password.data  # Use the setter to hash the password
+            db.session.commit()
+            flash('Your password has been updated!', 'success')
+            return redirect(url_for('profile_page'))
+        else:
+            # Handle form validation errors
+            flash('Please correct the errors in the form and try again.', 'danger')
+            return render_template('change_password.html', form=form)
 
+    # Handle GET request (form display)
+    elif request.method == 'GET':
+        return render_template('change_password.html', form=form)
 
-        # Update the password
-        current_user.password = form.new_password.data  # This uses the setter to hash the password
-        db.session.commit()
-
-        flash('Your password has been updated!', 'success')
-        return redirect(url_for('profile_page'))
-
-    print(form.new_password.data)
-    print(form.confirm_new_password.data)
-    return render_template('change_password.html', form=form)
 
 
 @app.route('/analytics/<table_name>', methods=['GET'])
