@@ -1,7 +1,7 @@
 from app import app, db
 from flask import render_template, redirect, url_for, flash, session, request
 from app.models import User, DeviceType, Day, Gender, Month, SharingService, UploaderType, Video
-from app.forms import RegisterForm, LoginForm
+from app.forms import RegisterForm, LoginForm, ChangePasswordForm
 from flask_login import login_user, logout_user, login_required, current_user
 from YouTube_API_Request import auth
 from YouTube_API_Request.auth import json_to_credentials, credentials_to_json
@@ -12,6 +12,37 @@ from werkzeug.security import generate_password_hash
 @app.route('/')
 def home_page():
     return render_template('home.html')
+
+
+@app.route('/change_password', methods=['GET', 'POST'])
+@login_required
+def change_password():
+    form = ChangePasswordForm()
+
+    if form.validate_on_submit():
+        # Check if the current password is correct
+        if not current_user.check_password_correction(attempted_password=form.current_password.data):
+            flash('Current password is incorrect. Please try again.', 'danger')
+            return redirect(url_for('change_password'))
+
+        # Check if the new password and confirmation match
+        if form.new_password.data != form.confirm_new_password.data:
+            flash('New password and confirmation do not match. Please try again.', 'danger')
+            print('fddffdfd')
+            return redirect(url_for('home'))
+
+
+
+        # Update the password
+        current_user.password = form.new_password.data  # This uses the setter to hash the password
+        db.session.commit()
+
+        flash('Your password has been updated!', 'success')
+        return redirect(url_for('profile_page'))
+
+    print(form.new_password.data)
+    print(form.confirm_new_password.data)
+    return render_template('change_password.html', form=form)
 
 
 @app.route('/analytics/<table_name>', methods=['GET'])
@@ -151,8 +182,6 @@ def register_page():
                             flash(f"Error in {getattr(form, field).label.text}: {error}", 'danger')
 
     return render_template('register.html', form=form)
-
-
 
 
 @app.route('/google_signup')

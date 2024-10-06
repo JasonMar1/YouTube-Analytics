@@ -9,10 +9,10 @@ app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('SQLALCHEMY_DATABASE_URI')
 
 
 
-#
-# app.config['SQLALCHEMY_BINDS'] = {
-#     'user_info': 'sqlite:///user_info.db'
-# }
+
+app.config['SQLALCHEMY_BINDS'] = {
+    'user_info': 'sqlite:///user_info.db'
+}
 
 
 
@@ -30,7 +30,7 @@ except KeyError:
 
 
 
-conn = psycopg2.connect(DATABASE_URL, sslmode='require')
+# conn = psycopg2.connect(DATABASE_URL, sslmode='require')
 
 
 

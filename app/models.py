@@ -21,7 +21,7 @@ class User(db.Model, UserMixin):
 
     @property
     def password(self):
-        return self.password
+        raise AttributeError('Password is not a readable attribute')
 
     @password.setter
     def password(self, plain_text_password):
@@ -29,6 +29,15 @@ class User(db.Model, UserMixin):
 
     def check_password_correction(self, attempted_password):
         return check_password_hash(self.password_hash, attempted_password)
+
+    def change_password(self, current_password, new_password):
+        """Change the user's password after validating the current password."""
+        if not self.check_password_correction(current_password):
+            return False  # Current password is incorrect
+
+        self.password = new_password  # This will hash the new password
+        db.session.commit()
+        return True
 
 
 # Base class for dimensions
