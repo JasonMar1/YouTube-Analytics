@@ -7,7 +7,17 @@
 {% block content %}
     <div class="container mt-4">
         {% for table_name, table_data in tables_data.items() %}
-            <h2>{{ table_name }} Data</h2>
+            <h2>
+                {% if table_name == "day" %}
+                    Day Analytics
+                {% elif table_name == "month" %}
+                    Month Analytics
+                {% elif table_name == "deviceType" %}
+                    Device Type Analytics
+                {% else %}
+                    {{ table_name }} Data
+                {% endif %}
+            </h2>
 
             <!-- Toggle Button for Filter Form -->
             <button class="btn btn-primary mb-3" type="button" data-toggle="collapse" data-target="#filterForm" aria-expanded="false" aria-controls="filterForm" id="filterToggleBtn">
@@ -30,30 +40,41 @@
                 </form>
             </div>
 
+            <!-- Scrollable Box for Data (only for "day" data) -->
+            {% if table_name == "day" %}
+            <div class="scrollable-box">
+            {% endif %}
+
             <div class="table-responsive">
-                <table class="table table-dark table-striped">
-                    <thead>
-                        <tr>
-                            {% for column in table_data.columns %}
-                                {% if column in selected_columns or not selected_columns %}
-                                    <th class="{% if column|lower in ['day', 'month'] %}date-column{% endif %}">{{ column }}</th>
-                                {% endif %}
-                            {% endfor %}
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for row in table_data.rows %}
+                <div class="outer-scroll">
+                    <table class="table table-dark table-striped">
+                        <thead>
                             <tr>
                                 {% for column in table_data.columns %}
                                     {% if column in selected_columns or not selected_columns %}
-                                        <td class="{% if column|lower in ['day', 'month'] %}date-column{% endif %}">{{ row[column] }}</td>
+                                        <th class="{% if column|lower in ['day', 'month'] %}date-column{% endif %}">{{ column }}</th>
                                     {% endif %}
                                 {% endfor %}
                             </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            {% for row in table_data.rows %}
+                                <tr>
+                                    {% for column in table_data.columns %}
+                                        {% if column in selected_columns or not selected_columns %}
+                                            <td class="{% if column|lower in ['day', 'month'] %}date-column{% endif %}">{{ row[column] }}</td>
+                                        {% endif %}
+                                    {% endfor %}
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
             </div>
+
+            {% if table_name == "day" %}
+            </div> <!-- End of scrollable-box -->
+            {% endif %}
         {% endfor %}
     </div>
 {% endblock %}
@@ -62,7 +83,15 @@
 <style>
     /* Ensure the table is horizontally scrollable if needed */
     .table-responsive {
-        overflow-x: auto;
+        overflow: auto; /* Hide any overflow to make room for the custom scroll */
+    }
+
+    /* Outer scroll wrapper to allow both scrolls */
+    .outer-scroll {
+        max-height: 600px; /* Set the maximum height for vertical scrolling */
+        overflow-y: auto; /* Enable vertical scrolling */
+        overflow-x: auto; /* Hide horizontal scroll from the outer wrapper */
+        position: relative; /* Positioning context for the inner scroll */
     }
 
     /* Apply custom styles to day and month columns */
@@ -70,6 +99,11 @@
         white-space: nowrap; /* Prevents wrapping */
         width: 150px; /* Adjust the width as needed */
         text-align: center; /* Center the text (optional) */
+    }
+
+    /* Scrollable box for day data */
+    .scrollable-box {
+        background-color: #343a40; /* Match the background with the theme */
     }
 
     /* Styles for the filter form */

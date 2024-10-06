@@ -15,6 +15,9 @@ os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
 CLIENT_SECRETS_FILE = ('/app/app/client_secret_70557108520-nvee7f4fus7n6pdm839venm3664vjb4v.apps.googleusercontent.com'
                        '.json')
 
+# HAVE TO CHANGE THE ABOVE VAR
+
+
 # Scopes required for accessing YouTube data
 SCOPES = [
     'https://www.googleapis.com/auth/yt-analytics.readonly',

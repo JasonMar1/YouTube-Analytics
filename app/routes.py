@@ -114,26 +114,45 @@ def oauth2callback():
 @app.route('/register', methods=['GET', 'POST'])
 def register_page():
     form = RegisterForm()
-    if form.validate_on_submit():
-        user_to_create = User(
-            username=form.username.data,
-            email_address=form.email_address.data,
-            password_hash=generate_password_hash(form.password1.data)
 
-        )
-        try:
-            db.session.add(user_to_create)
-            db.session.commit()
-            login_user(user_to_create)
-            session['user_id'] = user_to_create.id
-            return redirect(url_for('home_page'))
-        except Exception as e:
-            db.session.rollback()
-            print(f"Error during commit: {str(e)}")  # Print error for debugging
-            flash(f'Error: {str(e)}', 'danger')
-    else:
-        flash('There were errors in the form. Please correct them and try again.', 'danger')
+    if request.method == 'POST':
+        if form.validate_on_submit():
+            user_to_create = User(
+                username=form.username.data,
+                email_address=form.email_address.data,
+                password_hash=generate_password_hash(form.password1.data)
+            )
+            try:
+                db.session.add(user_to_create)
+                db.session.commit()
+                login_user(user_to_create)
+                session['user_id'] = user_to_create.id
+                return redirect(url_for('home_page'))
+            except Exception as e:
+                db.session.rollback()
+                print(f"Error during commit: {str(e)}")  # Print error for debugging
+                flash(f'Error: {str(e)}', 'danger')
+        else:
+            # Custom handling for email and password errors
+            if 'email_address' in form.errors:
+                for error in form.errors['email_address']:
+                    if "@" not in form.email_address.data:
+                        flash("The email address is missing an '@' symbol. Please enter a valid email.", 'danger')
+                    else:
+                        flash(f"Error in Email Address: {error}", 'danger')
+
+            if 'password2' in form.errors:
+                flash("Passwords do not match. Please make sure both password fields are identical.", 'danger')
+            else:
+                # Flash any other form validation errors
+                for field, errors in form.errors.items():
+                    if field != 'email_address' and field != 'password2':  # Skip email and password handled above
+                        for error in errors:
+                            flash(f"Error in {getattr(form, field).label.text}: {error}", 'danger')
+
     return render_template('register.html', form=form)
+
+
 
 
 @app.route('/google_signup')

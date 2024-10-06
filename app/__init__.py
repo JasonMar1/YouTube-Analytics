@@ -6,10 +6,18 @@ import psycopg2
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('SQLALCHEMY_DATABASE_URI')
-# # app.config['SQLALCHEMY_BINDS'] = {
-# #     'user_info': 'sqlite:///user_info.db'
-# # }
-app.config['SECRET_KEY'] = '085559c59aae537ebb4942f9'
+
+
+
+#
+# app.config['SQLALCHEMY_BINDS'] = {
+#     'user_info': 'sqlite:///user_info.db'
+# }
+
+
+
+
+app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
 app.config['SQLALCHEMY_ECHO'] = True
 
 try:
@@ -18,6 +26,12 @@ except KeyError:
     print("Error: The DATABASE_URL environment variable is not set.")
 
 conn = psycopg2.connect(DATABASE_URL, sslmode='require')
+
+
+
+
+
+
 
 login_manager.init_app(app)
 db.init_app(app)
