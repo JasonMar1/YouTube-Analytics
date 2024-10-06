@@ -10,11 +10,15 @@ app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('SQLALCHEMY_DATABASE_URI')
 
 
 
-app.config['SQLALCHEMY_BINDS'] = {
-    'user_info': 'sqlite:///user_info.db'
-}
 
+# app.config['SQLALCHEMY_BINDS'] = {
+#     'user_info': 'sqlite:///user_info.db'
+# }
 
+"""
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UNCOMMENT IT FOR LOCAL USAGE
+"""
 
 
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
@@ -26,13 +30,12 @@ except KeyError:
     print("Error: The DATABASE_URL environment variable is not set.")
 
 
+conn = psycopg2.connect(DATABASE_URL, sslmode='require')
 
-
-
-
-# conn = psycopg2.connect(DATABASE_URL, sslmode='require')
-
-
+"""
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+COMMENT IT FOR LOCAL USAGE
+"""
 
 
 
