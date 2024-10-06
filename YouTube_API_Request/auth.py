@@ -12,10 +12,7 @@ import os
 os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
 
 # Path to the client secrets JSON file
-CLIENT_SECRETS_FILE = ('/app/app/client_secret_70557108520-nvee7f4fus7n6pdm839venm3664vjb4v.apps.googleusercontent.com'
-                       '.json')
-
-# HAVE TO CHANGE THE ABOVE VAR
+CLIENT_SECRETS_FILE = os.getenv('CLIENT_SECRETS_FILE')
 
 
 # Scopes required for accessing YouTube data

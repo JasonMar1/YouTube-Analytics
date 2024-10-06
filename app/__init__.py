@@ -25,6 +25,11 @@ try:
 except KeyError:
     print("Error: The DATABASE_URL environment variable is not set.")
 
+
+
+
+
+
 conn = psycopg2.connect(DATABASE_URL, sslmode='require')
 
 
